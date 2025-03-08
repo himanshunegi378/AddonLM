@@ -1,5 +1,19 @@
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,8 +37,8 @@ export function CreateEditChatbotDialog({
 }: CreateEditChatbotDialogProps) {
   const isCreating = mode === "create";
   const title = isCreating ? "Create New Chatbot" : "Edit Chatbot";
-  const description = isCreating 
-    ? "Create a new chatbot with its own set of plugins." 
+  const description = isCreating
+    ? "Create a new chatbot with its own set of plugins."
     : "Update your chatbot's details";
   const buttonText = isCreating ? "Create Chatbot" : "Update Chatbot";
 
@@ -56,9 +70,9 @@ export function CreateEditChatbotDialog({
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="What this chatbot does..." 
-                      {...field} 
+                    <Textarea
+                      placeholder="What this chatbot does..."
+                      {...field}
                     />
                   </FormControl>
                 </FormItem>
@@ -71,11 +85,15 @@ export function CreateEditChatbotDialog({
                 <FormItem>
                   <FormLabel>Avatar URL</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://example.com/avatar.png" {...field} />
+                    <Input
+                      placeholder="https://example.com/avatar.png"
+                      {...field}
+                    />
                   </FormControl>
                   {isCreating && (
                     <FormDescription>
-                      URL to an image that will be used as the chatbot's avatar
+                      URL to an image that will be used as the chatbot&lsquo;s
+                      avatar
                     </FormDescription>
                   )}
                 </FormItem>

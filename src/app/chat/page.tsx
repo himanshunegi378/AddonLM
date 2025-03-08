@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar } from "@/components/ui/avatar";
 import { useChat } from "./hooks/useChat";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useUser } from "@/stores/user/userSelectors";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
@@ -17,7 +17,13 @@ import { getUserChatbots } from "@/services/chatbot.service";
 import { createDefaultChatbot } from "@/services/chat.service";
 import { Conversation, Chatbot } from "@prisma/client";
 import Sidebar from "./components/Sidebar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 
 type ChatbotWithDetails = Chatbot & {
@@ -31,11 +37,13 @@ type ChatbotWithDetails = Chatbot & {
   }[];
 };
 
-export default function ChatPage() {
+function ChatPage() {
   const [conversationId, setConversationId] = useState<number>();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [chatbots, setChatbots] = useState<ChatbotWithDetails[]>([]);
-  const [selectedChatbotId, setSelectedChatbotId] = useState<number | null>(null);
+  const [selectedChatbotId, setSelectedChatbotId] = useState<number | null>(
+    null
+  );
   const { messages, loading, sendMessage, title } = useChat(conversationId);
   const { id: userId } = useUser();
   const [input, setInput] = useState("");
@@ -48,7 +56,7 @@ export default function ChatPage() {
     try {
       const userChatbots = await getUserChatbots({ userId });
       setChatbots(userChatbots as ChatbotWithDetails[]);
-      
+
       // If no chatbots exist, create a default one
       if (userChatbots.length === 0) {
         const defaultChatbot = await createDefaultChatbot({ userId });
@@ -56,7 +64,7 @@ export default function ChatPage() {
         setSelectedChatbotId(defaultChatbot.id);
       } else {
         // Set the selected chatbot from URL or use the first one
-        const chatbotIdFromUrl = searchParams.get('chatbotId');
+        const chatbotIdFromUrl = searchParams.get("chatbotId");
         if (chatbotIdFromUrl) {
           setSelectedChatbotId(parseInt(chatbotIdFromUrl));
         } else {
@@ -75,7 +83,7 @@ export default function ChatPage() {
       const conversations = await getAllConversations({ userId });
       // Filter conversations by the selected chatbot
       const filteredConversations = conversations.filter(
-        conv => conv.chatbotId === selectedChatbotId
+        (conv) => conv.chatbotId === selectedChatbotId
       );
       setConversations(filteredConversations);
     } catch (error) {
@@ -87,9 +95,9 @@ export default function ChatPage() {
   const newConversation = async () => {
     if (!userId || !selectedChatbotId) return;
     try {
-      const conversation = await createConversation({ 
-        userId, 
-        chatbotId: selectedChatbotId 
+      const conversation = await createConversation({
+        userId,
+        chatbotId: selectedChatbotId,
       });
       await loadConversations();
       setConversationId(conversation.id);
@@ -103,7 +111,7 @@ export default function ChatPage() {
     const id = parseInt(chatbotId);
     setSelectedChatbotId(id);
     setConversationId(undefined); // Reset the current conversation
-    
+
     // Update URL to include chatbot ID
     router.push(`/chat?chatbotId=${id}`);
   };
@@ -117,7 +125,9 @@ export default function ChatPage() {
   }, [loadConversations]);
 
   // Get the current chatbot
-  const currentChatbot = chatbots.find(chatbot => chatbot.id === selectedChatbotId);
+  const currentChatbot = chatbots.find(
+    (chatbot) => chatbot.id === selectedChatbotId
+  );
 
   return (
     <div className="flex h-screen">
@@ -138,8 +148,8 @@ export default function ChatPage() {
             </h1>
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Chatbot:</span>
-              <Select 
-                value={selectedChatbotId?.toString()} 
+              <Select
+                value={selectedChatbotId?.toString()}
                 onValueChange={handleChatbotChange}
               >
                 <SelectTrigger className="w-[180px]">
@@ -167,7 +177,10 @@ export default function ChatPage() {
                 >
                   <Avatar className="h-8 w-8">
                     {message.role === "assistant" && currentChatbot?.avatar && (
-                      <img src={currentChatbot.avatar} alt={currentChatbot.name} />
+                      <img
+                        src={currentChatbot.avatar}
+                        alt={currentChatbot.name}
+                      />
                     )}
                   </Avatar>
                   <div
@@ -207,5 +220,13 @@ export default function ChatPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function WithSuspense() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ChatPage />
+    </Suspense>
   );
 }

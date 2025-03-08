@@ -1,47 +1,39 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { getChatbot, updateChatbot } from '@/services/chatbot.service';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { AlertCircle, Settings, MessageSquare, Puzzle } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { getChatbot } from "@/services/chatbot.service";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { AlertCircle, Settings, MessageSquare, Puzzle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Prisma } from "@prisma/client";
 
-interface ChatbotPlugin {
-  chatbotId: number;
-  pluginId: number;
-  enabled: boolean;
-}
-
-interface Chatbot {
-  id: number;
-  name: string;
-  description?: string;
-  avatar?: string;
-  createdAt: string;
-  updatedAt: string;
-  userId: number;
-  plugins: ChatbotPlugin[];
-}
-
-export default function ChatbotDetailPage({ params }: { params: { id: string } }) {
+export default function ChatbotDetailPage() {
   const router = useRouter();
+  const params = useParams<{ id: string }>();
   const chatbotId = parseInt(params.id);
-  
-  const [chatbot, setChatbot] = useState<Chatbot | null>(null);
+
+  const [chatbot, setChatbot] = useState<Prisma.ChatbotGetPayload<{
+    include: {
+      plugins: true;
+    };
+  }> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchChatbot = async () => {
       try {
         setIsLoading(true);
         const chatbotData = await getChatbot({ chatbotId });
+        if (!chatbotData) {
+          throw new Error("Chatbot not found");
+        }
         setChatbot(chatbotData);
       } catch (err) {
-        console.error('Error fetching chatbot:', err);
-        setError('Failed to load chatbot data');
+        console.error("Error fetching chatbot:", err);
+        setError("Failed to load chatbot data");
       } finally {
         setIsLoading(false);
       }
@@ -50,7 +42,7 @@ export default function ChatbotDetailPage({ params }: { params: { id: string } }
     if (chatbotId && !isNaN(chatbotId)) {
       fetchChatbot();
     } else {
-      setError('Invalid chatbot ID');
+      setError("Invalid chatbot ID");
       setIsLoading(false);
     }
   }, [chatbotId]);
@@ -71,10 +63,7 @@ export default function ChatbotDetailPage({ params }: { params: { id: string } }
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-        <Button 
-          className="mt-4" 
-          onClick={() => router.push('/chatbot')}
-        >
+        <Button className="mt-4" onClick={() => router.push("/chatbot")}>
           Back to Chatbots
         </Button>
       </div>
@@ -87,18 +76,18 @@ export default function ChatbotDetailPage({ params }: { params: { id: string } }
         <div>
           <h1 className="text-3xl font-bold mb-2">{chatbot?.name}</h1>
           <p className="text-gray-600">
-            {chatbot?.description || 'No description provided'}
+            {chatbot?.description || "No description provided"}
           </p>
         </div>
         <div>
-          <Button 
-            variant="outline" 
-            onClick={() => router.push('/chatbot')}
+          <Button
+            variant="outline"
+            onClick={() => router.push("/chatbot")}
             className="mr-2"
           >
             Back
           </Button>
-          <Button 
+          <Button
             variant="outline"
             onClick={() => router.push(`/chatbot/${chatbotId}/settings`)}
             className="mr-2"
@@ -117,7 +106,7 @@ export default function ChatbotDetailPage({ params }: { params: { id: string } }
                 <MessageSquare className="h-5 w-5 mr-2 text-primary" />
                 <h3 className="text-lg font-medium">Conversations</h3>
               </div>
-              <Button 
+              <Button
                 variant="outline"
                 onClick={() => router.push(`/chat?chatbotId=${chatbotId}`)}
               >
@@ -134,7 +123,7 @@ export default function ChatbotDetailPage({ params }: { params: { id: string } }
                 <Puzzle className="h-5 w-5 mr-2 text-primary" />
                 <h3 className="text-lg font-medium">Plugins</h3>
               </div>
-              <Button 
+              <Button
                 variant="outline"
                 onClick={() => router.push(`/chatbot/${chatbotId}/plugins`)}
               >
@@ -142,7 +131,7 @@ export default function ChatbotDetailPage({ params }: { params: { id: string } }
               </Button>
             </div>
             <p className="text-sm text-gray-500 mt-2">
-              {chatbot?.plugins?.length || 0} plugins installed
+              {chatbot?.plugins?.length ?? 0} plugins installed
             </p>
           </CardContent>
         </Card>
@@ -154,7 +143,7 @@ export default function ChatbotDetailPage({ params }: { params: { id: string } }
                 <Settings className="h-5 w-5 mr-2 text-primary" />
                 <h3 className="text-lg font-medium">Configuration</h3>
               </div>
-              <Button 
+              <Button
                 variant="outline"
                 onClick={() => router.push(`/chatbot/${chatbotId}/settings`)}
               >
@@ -174,15 +163,15 @@ export default function ChatbotDetailPage({ params }: { params: { id: string } }
           </div>
           <div>
             <h3 className="font-medium">Created</h3>
-            <p>{new Date(chatbot?.createdAt || '').toLocaleDateString()}</p>
+            <p>{new Date(chatbot?.createdAt || "").toLocaleDateString()}</p>
           </div>
           <div>
             <h3 className="font-medium">Description</h3>
-            <p>{chatbot?.description || 'No description provided'}</p>
+            <p>{chatbot?.description || "No description provided"}</p>
           </div>
           <div>
             <h3 className="font-medium">Last Updated</h3>
-            <p>{new Date(chatbot?.updatedAt || '').toLocaleDateString()}</p>
+            <p>{new Date(chatbot?.updatedAt || "").toLocaleDateString()}</p>
           </div>
         </div>
       </div>
