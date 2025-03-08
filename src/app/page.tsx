@@ -1,100 +1,141 @@
-import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, ChevronRight, Command, Layout, Puzzle, Settings } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/80">
+      {/* Hero Section */}
+      <div className="container px-4 py-16 md:py-24 mx-auto">
+        <div className="flex flex-col items-center text-center space-y-6">
+          <div className="inline-block p-2 bg-primary/10 rounded-xl mb-4">
+            <Command className="w-8 h-8 text-primary" />
+          </div>
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+            Next-Generation <span className="text-primary">Tool Addons</span>
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-2xl">
+            Create, manage, and deploy powerful plugin extensions with our intuitive platform
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 mt-4">
+            <Button asChild size="lg">
+              <Link href="/plugin">
+                Get Started
+                <ArrowRight className="ml-1" />
+              </Link>
+            </Button>
+            <Button asChild variant="secondary" size="lg">
+              <Link href="/chat">
+                Try Demo
+              </Link>
+            </Button>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </div>
+
+      {/* Features Section */}
+      <div className="container px-4 py-16 mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold">Powerful Features</h2>
+          <p className="text-muted-foreground mt-2">Everything you need to build and manage your tools</p>
+          <Separator className="mt-8 max-w-[120px] mx-auto" />
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Feature 1 */}
+          <Card>
+            <CardHeader className="flex flex-col items-center text-center">
+              <div className="p-3 rounded-full bg-primary/10 mb-4">
+                <Puzzle className="w-6 h-6 text-primary" />
+              </div>
+              <CardTitle>Plugin Management</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <CardDescription>
+                Create, edit and organize your plugins with our intuitive interface
+              </CardDescription>
+            </CardContent>
+          </Card>
+          
+          {/* Feature 2 */}
+          <Card>
+            <CardHeader className="flex flex-col items-center text-center">
+              <div className="p-3 rounded-full bg-primary/10 mb-4">
+                <Layout className="w-6 h-6 text-primary" />
+              </div>
+              <CardTitle>Custom Dashboards</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <CardDescription>
+                Monitor and analyze your plugin performance with real-time data
+              </CardDescription>
+            </CardContent>
+          </Card>
+          
+          {/* Feature 3 */}
+          <Card>
+            <CardHeader className="flex flex-col items-center text-center">
+              <div className="p-3 rounded-full bg-primary/10 mb-4">
+                <Settings className="w-6 h-6 text-primary" />
+              </div>
+              <CardTitle>Advanced Configuration</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <CardDescription>
+                Fine-tune your plugins with powerful customization options
+              </CardDescription>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* CTA Section */}
+      <div className="container px-4 py-16 md:py-24 mx-auto">
+        <Card className="border-border p-2">
+          <CardContent className="p-6 md:p-10">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+              <div>
+                <h2 className="text-3xl font-bold mb-4">Ready to enhance your workflow?</h2>
+                <p className="text-muted-foreground max-w-xl">
+                  Start creating and managing your custom tools today and transform how you work
+                </p>
+              </div>
+              <Button asChild size="lg">
+                <Link href="/plugin">
+                  Get Started
+                  <ChevronRight className="ml-1" />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Footer */}
+      <footer className="container px-4 py-8 mx-auto border-t border-border">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center">
+            <Command className="w-6 h-6 mr-2 text-primary" />
+            <span className="font-semibold">Tool Addon Platform</span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {new Date().getFullYear()} Tool Addon. All rights reserved.
+          </p>
+          <div className="flex gap-6">
+            <Button asChild variant="link" size="sm" className="h-auto p-0">
+              <Link href="/chatbot">Chat</Link>
+            </Button>
+            <Button asChild variant="link" size="sm" className="h-auto p-0">
+              <Link href="/plugin">Plugins</Link>
+            </Button>
+            <Button asChild variant="link" size="sm" className="h-auto p-0">
+              <Link href="/plugin">Documentation</Link>
+            </Button>
+          </div>
+        </div>
       </footer>
     </div>
   );

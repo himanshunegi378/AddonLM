@@ -1,0 +1,12 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "debug.javascript.autoAttachFilter": "smart",
+  "debug.javascript.unmapMissingSources": true,
+  "js/ts.implicitProjectConfig.experimentalDecorators": true
+}
