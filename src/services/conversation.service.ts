@@ -2,6 +2,7 @@
 import { createModel } from "@/utils/createModel";
 import prisma from "./prismaClient";
 import { z } from "zod";
+import { getUserApiKey } from "./apiKey.service";
 
 export const getConversation = async ({
   conversationId,
@@ -24,10 +25,10 @@ export const getConversation = async ({
   return conversation;
 };
 
-export const createConversation = async ({ 
-  userId, 
-  chatbotId 
-}: { 
+export const createConversation = async ({
+  userId,
+  chatbotId,
+}: {
   userId: number;
   chatbotId: number;
 }) => {
@@ -81,16 +82,16 @@ export const getAllConversations = async ({ userId }: { userId: number }) => {
       },
     },
     orderBy: {
-      updatedAt: 'desc',
+      updatedAt: "desc",
     },
   });
   return conversations;
 };
 
-export const getChatbotConversations = async ({ 
-  userId, 
-  chatbotId 
-}: { 
+export const getChatbotConversations = async ({
+  userId,
+  chatbotId,
+}: {
   userId: number;
   chatbotId: number;
 }) => {
@@ -100,7 +101,7 @@ export const getChatbotConversations = async ({
       chatbotId,
     },
     orderBy: {
-      updatedAt: 'desc',
+      updatedAt: "desc",
     },
   });
   return conversations;
@@ -113,7 +114,9 @@ export const autoAddConversationTitle = async ({
 }) => {
   const conversation = await getConversation({ conversationId });
   if (!conversation) throw new Error("Conversation not found");
-  const model = createModel({});
+  const apiKey = await getUserApiKey(conversation.userId);
+  if (!apiKey) throw new Error("API key not found");
+  const model = createModel({ apiKey });
 
   const response = await model
     .withStructuredOutput({

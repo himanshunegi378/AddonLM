@@ -1,8 +1,8 @@
 "use server";
 
-import { 
-  addMessageToConversation, 
-  getConversation 
+import {
+  addMessageToConversation,
+  getConversation,
 } from "../conversation.service";
 import { createModel } from "@/utils/createModel";
 import { getChatbot } from "../chatbot.service";
@@ -11,6 +11,7 @@ import { evaluatePluginCode } from "./evaluatePluginCode";
 import { BaseLanguageModel } from "@langchain/core/language_models/base";
 import { BaseMessage, AIMessage, HumanMessage } from "@langchain/core/messages";
 import { DynamicTool } from "@langchain/core/tools";
+import { getUserApiKey } from "../apiKey.service";
 
 // Types for better code clarity
 interface ChatInput {
@@ -56,14 +57,17 @@ interface ChatbotData {
 
 /**
  * Processes a chat message within a conversation
- * 
+ *
  * This function handles the complete chat flow:
  * 1. Retrieves the conversation and associated chatbot
  * 2. Loads and evaluates enabled plugins
  * 3. Creates an agent with the model and tools
  * 4. Processes the user input and returns a response
  */
-export const chat = async ({ conversationId, input }: ChatInput): Promise<string> => {
+export const chat = async ({
+  conversationId,
+  input,
+}: ChatInput): Promise<string> => {
   // --- Step 1: Retrieve conversation and validate ---
   const conversation = await getConversation({ conversationId });
   if (!conversation) {
@@ -78,14 +82,21 @@ export const chat = async ({ conversationId, input }: ChatInput): Promise<string
 
   // --- Step 3: Process plugins ---
   const tools = await loadAndEvaluatePlugins(chatbot as ChatbotData);
-  
+
   // --- Step 4: Create model and prepare message history ---
-  const model = createModel({}) as BaseLanguageModel;
-  const messages = prepareMessageHistory(conversation as ConversationData, input);
+  const apiKey = await getUserApiKey(conversation.userId);
+  if (!apiKey) {
+    throw new Error("API key not found");
+  }
+  const model = createModel({ apiKey }) as BaseLanguageModel;
+  const messages = prepareMessageHistory(
+    conversation as ConversationData,
+    input
+  );
 
   // --- Step 5: Create agent and get response ---
   const response = await processWithAgent(model, tools, messages);
-  
+
   // --- Step 6: Save conversation history ---
   await saveConversationHistory(conversationId, input, response);
 
@@ -97,16 +108,16 @@ export const chat = async ({ conversationId, input }: ChatInput): Promise<string
  * @param chatbot The chatbot with its plugins
  * @returns Array of functional LangChain tools
  */
-const loadAndEvaluatePlugins = async (chatbot: ChatbotData): Promise<DynamicTool[]> => {
+const loadAndEvaluatePlugins = async (
+  chatbot: ChatbotData
+): Promise<DynamicTool[]> => {
   // Get active plugins for this chatbot
   const activePlugins = chatbot.plugins
     .filter((plugin: ChatbotPluginData) => plugin.enabled)
     .map((plugin: ChatbotPluginData) => plugin.plugin.code);
 
   // Evaluate each plugin code and filter out any that failed to evaluate
-  const pluginTools = await Promise.all(
-    activePlugins.map(evaluatePluginCode)
-  );
+  const pluginTools = await Promise.all(activePlugins.map(evaluatePluginCode));
 
   // Filter out any null tools
   return pluginTools.filter((tool): tool is DynamicTool => tool !== null);
@@ -118,7 +129,10 @@ const loadAndEvaluatePlugins = async (chatbot: ChatbotData): Promise<DynamicTool
  * @param input The new user input
  * @returns Array of chat messages
  */
-const prepareMessageHistory = (conversation: ConversationData, input: string): ChatMessage[] => {
+const prepareMessageHistory = (
+  conversation: ConversationData,
+  input: string
+): ChatMessage[] => {
   let messages: ChatMessage[] = [];
 
   if (conversation?.messages) {
@@ -130,7 +144,7 @@ const prepareMessageHistory = (conversation: ConversationData, input: string): C
 
   // Add the current user message
   messages.push({ content: input, role: "user" });
-  
+
   return messages;
 };
 
@@ -140,7 +154,7 @@ const prepareMessageHistory = (conversation: ConversationData, input: string): C
  * @returns LangChain-compatible message objects
  */
 const convertToLangChainMessages = (messages: ChatMessage[]): BaseMessage[] => {
-  return messages.map(message => {
+  return messages.map((message) => {
     if (message.role === "user") {
       return new HumanMessage(message.content);
     } else {
@@ -157,8 +171,8 @@ const convertToLangChainMessages = (messages: ChatMessage[]): BaseMessage[] => {
  * @returns The assistant's response
  */
 const processWithAgent = async (
-  model: BaseLanguageModel, 
-  tools: DynamicTool[], 
+  model: BaseLanguageModel,
+  tools: DynamicTool[],
   messages: ChatMessage[]
 ): Promise<string> => {
   // Create agent with dynamically loaded plugin tools
@@ -174,7 +188,7 @@ const processWithAgent = async (
   const response = await agent.invoke({
     messages: langChainMessages,
   });
-  
+
   // Extract and return the latest response content
   return response.messages.slice(-1)[0].content as string;
 };
@@ -186,8 +200,8 @@ const processWithAgent = async (
  * @param assistantResponse Assistant's response content
  */
 const saveConversationHistory = async (
-  conversationId: number, 
-  userInput: string, 
+  conversationId: number,
+  userInput: string,
   assistantResponse: string
 ): Promise<void> => {
   // Save user message
