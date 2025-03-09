@@ -44,7 +44,7 @@ export default function SettingsPage() {
                 className="max-w-xl"
               />
               <p className="text-sm text-muted-foreground">
-                Don't have an API key? Get one from your{" "}
+                Don&lsquo;t have an API key? Get one from your{" "}
                 <a
                   href="https://platform.openai.com/api-keys"
                   target="_blank"
