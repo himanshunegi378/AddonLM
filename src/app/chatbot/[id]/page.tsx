@@ -12,7 +12,7 @@ import { Prisma } from "@prisma/client";
 export default function ChatbotDetailPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
-  const chatbotId = parseInt(params.id);
+  const chatbotId = parseInt(params!.id);
 
   const [chatbot, setChatbot] = useState<Prisma.ChatbotGetPayload<{
     include: {

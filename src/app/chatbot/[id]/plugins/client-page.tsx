@@ -64,7 +64,7 @@ interface Chatbot {
 export default function ChatbotPluginsClientPage() {
   const router = useRouter();
   const params = useParams();
-  const chatbotId = parseInt(params.id as string);
+  const chatbotId = parseInt(params!.id as string);
 
   const [chatbot, setChatbot] = useState<Chatbot | null>(null);
   const [availablePlugins, setAvailablePlugins] = useState<Plugin[]>([]);

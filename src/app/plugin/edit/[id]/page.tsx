@@ -1,16 +1,22 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Save, History } from 'lucide-react';
-import { getPlugin, updatePlugin } from '@/services/plugin.service';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import VersionHistory from './history';
+import { useState, useEffect, useCallback } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { ArrowLeft, Save, History } from "lucide-react";
+import { getPlugin, updatePlugin } from "@/services/plugin.service";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import VersionHistory from "./history";
 
 interface Plugin {
   id: number;
@@ -25,20 +31,20 @@ interface Plugin {
 export default function EditPluginPage() {
   const router = useRouter();
   const params = useParams();
-  const pluginId = Number(params.id);
-  
+  const pluginId = Number(params!.id);
+
   const [plugin, setPlugin] = useState<Plugin | null>(null);
-  const [name, setName] = useState('');
-  const [code, setCode] = useState('');
+  const [name, setName] = useState("");
+  const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('edit');
+  const [activeTab, setActiveTab] = useState("edit");
 
   const loadPlugin = useCallback(async () => {
     if (!pluginId) return;
-    
+
     try {
       setIsLoading(true);
       const pluginData = await getPlugin({ pluginId });
@@ -47,11 +53,11 @@ export default function EditPluginPage() {
         setName(pluginData.name);
         setCode(pluginData.code);
       } else {
-        setError('Plugin not found');
+        setError("Plugin not found");
       }
     } catch (err) {
-      console.error('Failed to load plugin:', err);
-      setError('Failed to load plugin');
+      console.error("Failed to load plugin:", err);
+      setError("Failed to load plugin");
     } finally {
       setIsLoading(false);
     }
@@ -63,35 +69,37 @@ export default function EditPluginPage() {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      setError('Plugin name is required');
+      setError("Plugin name is required");
       return;
     }
 
     if (!code.trim()) {
-      setError('Plugin code is required');
+      setError("Plugin code is required");
       return;
     }
 
     try {
       setIsSaving(true);
       setError(null);
-      
+
       const updatedPlugin = await updatePlugin({
         pluginId,
         name,
         code,
       });
-      
+
       setPlugin(updatedPlugin);
-      setSuccessMessage(`Plugin updated successfully to version ${updatedPlugin.version}`);
+      setSuccessMessage(
+        `Plugin updated successfully to version ${updatedPlugin.version}`
+      );
 
       // Clear success message after 3 seconds
       setTimeout(() => {
         setSuccessMessage(null);
       }, 3000);
     } catch (err) {
-      console.error('Failed to save plugin:', err);
-      setError('Failed to save plugin');
+      console.error("Failed to save plugin:", err);
+      setError("Failed to save plugin");
     } finally {
       setIsSaving(false);
     }
@@ -106,21 +114,18 @@ export default function EditPluginPage() {
         </div>
       );
     }
-    
+
     if (error && !plugin) {
       return (
         <div className="text-center py-10 text-red-500">
           <p>{error}</p>
-          <Button 
-            className="mt-4"
-            onClick={() => router.push('/plugin')}
-          >
+          <Button className="mt-4" onClick={() => router.push("/plugin")}>
             Return to Plugins
           </Button>
         </div>
       );
     }
-    
+
     return (
       <Tabs defaultValue="edit" value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-4">
@@ -131,22 +136,25 @@ export default function EditPluginPage() {
             <History className="h-4 w-4" /> Version History
           </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="edit" className="space-y-4">
           {error && (
             <div className="bg-red-50 p-4 rounded-md text-red-500 mb-4">
               {error}
             </div>
           )}
-          
+
           {successMessage && (
             <div className="bg-green-50 p-4 rounded-md text-green-600 mb-4">
               {successMessage}
             </div>
           )}
-          
+
           <div>
-            <label htmlFor="plugin-name" className="block text-sm font-medium mb-1">
+            <label
+              htmlFor="plugin-name"
+              className="block text-sm font-medium mb-1"
+            >
               Plugin Name
             </label>
             <Input
@@ -156,9 +164,12 @@ export default function EditPluginPage() {
               placeholder="Enter plugin name"
             />
           </div>
-          
+
           <div>
-            <label htmlFor="plugin-code" className="block text-sm font-medium mb-1">
+            <label
+              htmlFor="plugin-code"
+              className="block text-sm font-medium mb-1"
+            >
               Plugin Code
             </label>
             <Textarea
@@ -169,12 +180,12 @@ export default function EditPluginPage() {
               placeholder="function run(input) { /* Your plugin code here */ }"
             />
           </div>
-          
+
           <div className="flex justify-end mt-4">
             <Button
               variant="outline"
               className="mr-2"
-              onClick={() => router.push('/plugin')}
+              onClick={() => router.push("/plugin")}
             >
               Cancel
             </Button>
@@ -183,7 +194,9 @@ export default function EditPluginPage() {
               onClick={handleSave}
               className="flex items-center"
             >
-              {isSaving ? 'Saving...' : (
+              {isSaving ? (
+                "Saving..."
+              ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" /> Save Changes
                 </>
@@ -191,16 +204,18 @@ export default function EditPluginPage() {
             </Button>
           </div>
         </TabsContent>
-        
+
         <TabsContent value="history">
           {Boolean(pluginId) && (
-            <VersionHistory 
-              pluginId={pluginId} 
+            <VersionHistory
+              pluginId={pluginId}
               onVersionRestore={() => {
-                setActiveTab('edit');
+                setActiveTab("edit");
                 loadPlugin();
-                setSuccessMessage('Plugin restored to previous version successfully');
-              }} 
+                setSuccessMessage(
+                  "Plugin restored to previous version successfully"
+                );
+              }}
             />
           )}
         </TabsContent>
@@ -210,10 +225,10 @@ export default function EditPluginPage() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <Button 
-        variant="ghost" 
+      <Button
+        variant="ghost"
         className="mb-4"
-        onClick={() => router.push('/plugin')}
+        onClick={() => router.push("/plugin")}
       >
         <ArrowLeft className="h-4 w-4 mr-2" /> Back to Plugins
       </Button>
@@ -223,9 +238,7 @@ export default function EditPluginPage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Edit Plugin</CardTitle>
-              <CardDescription>
-                Make changes to your plugin
-              </CardDescription>
+              <CardDescription>Make changes to your plugin</CardDescription>
             </div>
             {plugin && (
               <Badge variant="outline" className="text-sm">
@@ -234,9 +247,7 @@ export default function EditPluginPage() {
             )}
           </div>
         </CardHeader>
-        <CardContent>
-          {renderContent()}
-        </CardContent>
+        <CardContent>{renderContent()}</CardContent>
       </Card>
     </div>
   );

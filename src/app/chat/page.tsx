@@ -69,7 +69,7 @@ function ChatPage() {
         setSelectedChatbotId(defaultChatbot.id);
       } else {
         // Set the selected chatbot from URL or use the first one
-        const chatbotIdFromUrl = searchParams.get("chatbotId");
+        const chatbotIdFromUrl = searchParams?.get("chatbotId");
         if (chatbotIdFromUrl) {
           setSelectedChatbotId(parseInt(chatbotIdFromUrl));
         } else {
