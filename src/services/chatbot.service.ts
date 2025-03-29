@@ -1,4 +1,5 @@
 "use server";
+import { Prisma } from "@prisma/client";
 import prisma from "./prismaClient";
 
 /**
@@ -9,13 +10,19 @@ export const createChatbot = async ({
   name,
   description,
   avatar,
+  options,
 }: {
   userId: number;
   name: string;
   description?: string;
   avatar?: string;
+  options?: {
+    tx?: Prisma.TransactionClient;
+  };
 }) => {
-  const chatbot = await prisma.chatbot.create({
+  const { tx } = options || {};
+
+  const chatbot = await (tx || prisma).chatbot.create({
     data: {
       userId,
       name,
@@ -79,12 +86,17 @@ export const addPluginToChatbot = async ({
   chatbotId,
   pluginId,
   enabled = true,
+  options,
 }: {
   chatbotId: number;
   pluginId: number;
   enabled?: boolean;
+  options?: {
+    tx?: Prisma.TransactionClient;
+  };
 }) => {
-  const chatbotPlugin = await prisma.chatbotPlugins.create({
+  const { tx } = options || {};
+  const chatbotPlugin = await (tx || prisma).chatbotPlugins.create({
     data: {
       chatbotId,
       pluginId,

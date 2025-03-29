@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar } from "@/components/ui/avatar";
 import { useChat } from "./hooks/useChat";
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useUser } from "@/stores/user/userSelectors";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
@@ -45,10 +45,15 @@ function ChatPage() {
     null
   );
   const { messages, loading, sendMessage, title } = useChat(conversationId);
+  const sendMessageRef = useRef(sendMessage);
   const { id: userId } = useUser();
   const [input, setInput] = useState("");
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  useEffect(() => {
+    sendMessageRef.current = sendMessage;
+  }, [sendMessage]);
 
   // Load chatbots
   const loadChatbots = useCallback(async () => {
@@ -199,11 +204,20 @@ function ChatPage() {
 
           <div className="p-4 border-t">
             <form
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
                 if (!input.trim()) return;
-                sendMessage(input);
-                setInput("");
+                if (!conversationId) {
+                  await newConversation();
+                  setTimeout(() => {
+                    sendMessageRef.current(input);
+                    setInput("");
+                  }, 1000);
+                  return;
+                } else {
+                  sendMessage(input);
+                  setInput("");
+                }
               }}
               className="flex gap-2"
             >
@@ -212,7 +226,7 @@ function ChatPage() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
               />
-              <Button type="submit" disabled={loading || !conversationId}>
+              <Button type="submit" disabled={loading}>
                 Send
               </Button>
             </form>

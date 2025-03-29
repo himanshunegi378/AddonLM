@@ -1,12 +1,17 @@
 "use server";
+import { Prisma } from "@prisma/client";
 import prisma from "./prismaClient";
 
 /**
  * Gets or creates a developer for a user
  */
-export const getOrCreateDeveloper = async (userId: number) => {
+export const getOrCreateDeveloper = async (
+  userId: number,
+  options?: { tx?: Prisma.TransactionClient }
+) => {
+  const { tx } = options || {};
   // Try to find existing developer
-  let developer = await prisma.developer.findUnique({
+  let developer = await (tx || prisma).developer.findUnique({
     where: {
       userId,
     },
@@ -15,7 +20,7 @@ export const getOrCreateDeveloper = async (userId: number) => {
   // If no developer exists, create one
   if (!developer) {
     // Make sure user exists
-    const user = await prisma.user.findUnique({
+    const user = await (tx || prisma).user.findUnique({
       where: {
         id: userId,
       },
@@ -25,7 +30,7 @@ export const getOrCreateDeveloper = async (userId: number) => {
       throw new Error("User not found");
     }
 
-    developer = await prisma.developer.create({
+    developer = await (tx || prisma).developer.create({
       data: {
         userId,
       },
@@ -42,15 +47,20 @@ export const createPlugin = async ({
   userId,
   name,
   code,
+  options,
 }: {
   userId: number;
   name: string;
   code: string;
+  options?: {
+    tx?: Prisma.TransactionClient;
+  };
 }) => {
+  const { tx } = options || {};
   // Get or create developer for this user
-  const developer = await getOrCreateDeveloper(userId);
+  const developer = await getOrCreateDeveloper(userId, { tx });
 
-  const plugin = await prisma.plugin.create({
+  const plugin = await (tx || prisma).plugin.create({
     data: {
       developerId: developer.id,
       name,
@@ -154,10 +164,10 @@ export const getPluginVersions = async ({ pluginId }: { pluginId: number }) => {
       pluginId,
     },
     orderBy: {
-      versionNumber: 'desc',
+      versionNumber: "desc",
     },
   });
-  
+
   // Get current version from the plugin itself
   const currentPlugin = await prisma.plugin.findUnique({
     where: {
@@ -172,7 +182,7 @@ export const getPluginVersions = async ({ pluginId }: { pluginId: number }) => {
       updatedAt: true,
     },
   });
-  
+
   if (!currentPlugin) {
     throw new Error(`Plugin with ID ${pluginId} not found`);
   }
@@ -193,7 +203,7 @@ export const getPluginVersions = async ({ pluginId }: { pluginId: number }) => {
       isCurrent: false,
     })),
   ];
-  
+
   return allVersions;
 };
 
@@ -240,7 +250,9 @@ export const getPluginVersion = async ({
   });
 
   if (!version) {
-    throw new Error(`Version ${versionNumber} for plugin ID ${pluginId} not found`);
+    throw new Error(
+      `Version ${versionNumber} for plugin ID ${pluginId} not found`
+    );
   }
 
   return {
@@ -270,7 +282,9 @@ export const restorePluginVersion = async ({
   });
 
   if (!version) {
-    throw new Error(`Version ${versionNumber} for plugin ID ${pluginId} not found`);
+    throw new Error(
+      `Version ${versionNumber} for plugin ID ${pluginId} not found`
+    );
   }
 
   // Update the current plugin with the version data

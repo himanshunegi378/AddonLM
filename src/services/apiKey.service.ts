@@ -8,7 +8,7 @@ export async function getUserApiKey(userId: number): Promise<string | null> {
     select: { key: true },
   });
 
-  return apiKey?.key || null;
+  return apiKey?.key ?? null;
 }
 
 export async function setUserApiKey(
