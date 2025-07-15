@@ -3,7 +3,9 @@ module.exports = {
     name: 'addonlm',
     script: "pnpm",
     args: ["start"],
-    watch: '.'
+     env: {
+        PORT: 3002
+      },
   }],
   watch: false, 
   max_memory_restart: '500M',
